@@ -1723,7 +1723,8 @@ static void cmd_break(DebugState *ds)
 }
 
 static void cmd_tb(DebugState *ds)
-{	BreakPoint *bp = setbreakpoint(ds);
+{
+	BreakPoint *bp = setbreakpoint(ds);
 	if (bp) {
 		bp->flags = BP_TEMP;
 	}
@@ -1875,11 +1876,11 @@ static void cmd_next(DebugState *ds)
 	while (++codepos < p->sizecode) {
 		code = p->code[codepos];
 		op = GET_OPCODE(code);
-		if (op >= OP_JMP && op <= OP_TFORLOOP && op != OP_CALL) {
-			codepos = -1;
+		if (p->lineinfo[codepos] != thisline) {
 			break;
 		}
-		if (p->lineinfo[codepos] != thisline) {
+		if (op >= OP_JMP && op <= OP_TFORLOOP && op != OP_CALL) {
+			codepos = -1;
 			break;
 		}
 	}
@@ -2408,7 +2409,7 @@ static int onpanic(lua_State *L)
 			close(fd);
 		}
 	}
-	return 0;
+	return 0;
 }
 
 static int starttcpserver(DebugState *ds, const char *addr)
